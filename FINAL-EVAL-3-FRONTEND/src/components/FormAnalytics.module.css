@@ -1,0 +1,172 @@
+.container {
+  padding: 1.5rem;
+  transition: background-color 0.3s, color 0.3s;
+  min-height: calc(100vh - 60px);
+}
+
+.container.dark {
+  background-color: #111827;
+  color: #f3f4f6;
+}
+
+.container.light {
+  background-color: #ffffff;
+  color: #111827;
+}
+
+/* ... (keep all existing styles) ... */
+
+/* Add new empty state styles */
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: calc(100vh - 60px);
+  text-align: center;
+  font-size: 1.125rem;
+  font-weight: 500;
+}
+
+.dark .emptyState {
+  color: #9ca3af;
+}
+
+.light .emptyState {
+  color: #6b7280;
+}
+
+
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.statCard {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  transition: background-color 0.3s;
+}
+
+.dark .statCard {
+  background-color: #1f2937;
+}
+
+.light .statCard {
+  background-color: #f3f4f6;
+}
+
+.statTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.tableWrapper {
+  overflow-x: auto;
+  margin-bottom: 1.5rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tableHeader {
+  padding: 0.5rem;
+  text-align: left;
+  transition: background-color 0.3s;
+}
+
+.dark .tableHeader {
+  background-color: #1f2937;
+}
+
+.light .tableHeader {
+  background-color: #f3f4f6;
+}
+
+.tableCell {
+  padding: 0.5rem;
+  border-bottom: 1px solid;
+  transition: border-color 0.3s;
+}
+
+.dark .tableCell {
+  border-color: #374151;
+}
+
+.light .tableCell {
+  border-color: #e5e7eb;
+}
+
+.completionSection {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.donutChart {
+  position: relative;
+  width: 8rem;
+  height: 8rem;
+}
+
+.donutRing {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.donutSegment {
+  transition: stroke-dasharray 1s;
+}
+
+.dark .donutRing circle:first-child {
+  stroke: #4b5563;
+}
+
+.light .donutRing circle:first-child {
+  stroke: #e5e7eb;
+}
+
+.completionOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.completedCount {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.completionValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.loading {
+  text-align: center;
+  padding: 1rem;
+  transition: color 0.3s;
+}
+
+.dark .loading {
+  color: #d1d5db;
+}
+
+.light .loading {
+  color: #4b5563;
+}

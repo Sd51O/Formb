@@ -12,8 +12,10 @@ import {
   reorderFormElements, getExistingElementIds, createShareLink  
 } from '../services/api';
 import FormShare from './FormShare';
+import FormAnalytics from './FormAnalytics';
 
 const FormEditor = () => {
+  
   const { formbotId } = useParams();
   const [activeTab, setActiveTab] = useState('Flow');
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -23,6 +25,7 @@ const FormEditor = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState(null);
   const [shareUrl, setShareUrl] = useState('');
+  const [showMessage, setShowMessage] = useState(false);
   useEffect(() => {
     const loadFormElements = async () => {
       if (!formbotId) {
@@ -84,6 +87,11 @@ const FormEditor = () => {
     { id: 'rating-input', icon: "⭐", label: "Rating", category: "Inputs", type: 'rating-input' },
     { id: 'button-input', icon: "🔘", label: "Buttons", category: "Inputs", type: 'button-input' }
   ];
+  const isLastElementButton = () => {
+    if (formElements.length === 0) return false;
+    const lastElement = formElements[formElements.length - 1];
+    return lastElement.type === 'button-input';
+  };
 
   const handleElementDelete = async (elementId) => {
     // Log the incoming parameters
@@ -300,7 +308,7 @@ const FormEditor = () => {
           element.id === elementId ? { ...element, value: newValue } : element
         )
       );
-
+     
       // Make API call with explicit ID check
       const updatedElement = await updateFormElement(formbotId, elementId, { value: newValue });
       
@@ -419,6 +427,35 @@ const FormEditor = () => {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const renderSaveButton = () => {
+    const isDisabled = !isLastElementButton();
+    
+    return (
+      <div 
+        className={styles.saveButtonContainer}
+        onMouseEnter={() => setShowMessage(true)}
+        onMouseLeave={() => setShowMessage(false)}
+      >
+        <button 
+          className={`${styles.saveButton} ${isDisabled ? styles.saveButtonDisabled : ''}`}
+          onClick={handleSave}
+          disabled={isSaving || isDisabled}
+        >
+          {isSaving ? <Loader2 className={styles.spinner} size={16} /> : 'Save'}
+        </button>
+        
+        {isDisabled && showMessage && (
+          <div 
+            className={styles.saveButtonMessage}
+            style={{ display: showMessage ? 'block' : 'none' }}
+          >
+            Please add a Button element at the end to enable saving
+          </div>
+        )}
+      </div>
+    );
   };
 
   const renderCanvasElements = () => {
@@ -543,99 +580,67 @@ const FormEditor = () => {
             <span>Dark</span>
           </div>
           
-           <button 
-      className={`${styles.actionButton} ${styles.shareButton}`}
-      onClick={handleShare}
-      disabled={isSaving}
-    >
-      {isSaving ? <Loader2 className={styles.spinner} size={16} /> : 'Share'}
-    </button>
           <button 
-            className={`${styles.actionButton} ${styles.saveButton}`}
-            onClick={handleSave}
+            className={`${styles.actionButton} ${styles.shareButton}`}
+            onClick={handleShare}
             disabled={isSaving}
           >
-            {isSaving ? <Loader2 className={styles.spinner} size={16} /> : 'Save'}
+            {isSaving ? <Loader2 className={styles.spinner} size={16} /> : 'Share'}
           </button>
+        
+          {renderSaveButton()}
           <button className={styles.closeButton}>
             <X size={20} />
           </button>
         </div>
       </header>
 
-      <DragDropContext onDragEnd={onDragEnd}>
-        <main className={styles.main}>
-          <Droppable droppableId="SIDEBAR" isDropDisabled={true}>
-            {(provided, snapshot) => (
-              <aside 
-                className={styles.sidebar}
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-              >
-                {['Bubbles', 'Inputs'].map((category) => (
-                  <div key={category} className={styles.category}>
-                    <h3 className={styles.categoryTitle}>{category}</h3>
-                    <div className={styles.elementGrid}>
-                      {renderSidebarElements(category)}
+      {activeTab === 'Response' ? (
+        <FormAnalytics formId={formbotId} isDarkMode={isDarkMode} />
+      ) : (
+        <DragDropContext onDragEnd={onDragEnd}>
+          <main className={styles.main}>
+            <Droppable droppableId="SIDEBAR" isDropDisabled={true}>
+              {(provided, snapshot) => (
+                <aside 
+                  className={styles.sidebar}
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                >
+                  {['Bubbles', 'Inputs'].map((category) => (
+                    <div key={category} className={styles.category}>
+                      <h3 className={styles.categoryTitle}>{category}</h3>
+                      <div className={styles.elementGrid}>
+                        {renderSidebarElements(category)}
+                      </div>
                     </div>
-                  </div>
-                ))}
-                {provided.placeholder}
-              </aside>
-            )}
-          </Droppable>
-
-          <Droppable droppableId="CANVAS">
-            {(provided, snapshot) => (
-              <section 
-                className={styles.canvas}
-                ref={provided.innerRef}
-                {...provided.droppableProps}
-              >
-                <div className={styles.canvasContent}>
-                  <div className={styles.startNode}>
-                    <span className={styles.startIcon}>▶</span>
-                    <span>Start</span>
-                  </div>
-                  
-                  {formElements.map((element, index) => (
-                    <React.Fragment key={element.id}>
-                      <div className={styles.connector} />
-                      <Draggable draggableId={element.id} index={index}>
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className={`${styles.droppedElement} ${snapshot.isDragging ? styles.dragging : ''}`}
-                            style={provided.draggableProps.style}
-                          >
-                            <div className={styles.elementHeader}>
-                              <span className={styles.elementIcon}>{element.icon}</span>
-                              <span>{element.label}</span>
-                              <button 
-                                className={styles.deleteButton}
-                                onClick={() => handleElementDelete(element.id)}
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-                            {renderElementContent(element)}
-                            <div className={styles.required}>
-                              Required Field
-                            </div>
-                          </div>
-                        )}
-                      </Draggable>
-                    </React.Fragment>
                   ))}
                   {provided.placeholder}
-                </div>
-              </section>
-            )}
-          </Droppable>
-        </main>
-      </DragDropContext>
+                </aside>
+              )}
+            </Droppable>
+
+            <Droppable droppableId="CANVAS">
+              {(provided, snapshot) => (
+                <section 
+                  className={styles.canvas}
+                  ref={provided.innerRef}
+                  {...provided.droppableProps}
+                >
+                  <div className={styles.canvasContent}>
+                    <div className={styles.startNode}>
+                      <span className={styles.startIcon}>▶</span>
+                      <span>Start</span>
+                    </div>
+                    {renderCanvasElements()}
+                    {provided.placeholder}
+                  </div>
+                </section>
+              )}
+            </Droppable>
+          </main>
+        </DragDropContext>
+      )}
       
       {error && (
         <div className={styles.errorBanner}>

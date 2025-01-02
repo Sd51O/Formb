@@ -172,3 +172,23 @@
     width: 100%;
     gap: 8px;
   }
+  .buttonWrapper {
+    display: flex;
+    justify-content: center;
+    margin: 10px 0;
+  }
+  
+  .button {
+    padding: 10px 24px;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+  }
+  
+  .button:hover {
+    background-color: #0056b3;
+  }
